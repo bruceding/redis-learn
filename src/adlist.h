@@ -33,6 +33,7 @@
 
 /* Node, List, and Iterator are the only data structures used currently. */
 
+// 链表节点
 typedef struct listNode {
     struct listNode *prev;
     struct listNode *next;
@@ -44,11 +45,16 @@ typedef struct listIter {
     int direction;
 } listIter;
 
+//链表， 48字节
 typedef struct list {
     listNode *head;
     listNode *tail;
+
+    // 复制节点
     void *(*dup)(void *ptr);
+    // 释放节点
     void (*free)(void *ptr);
+    // 查找节点
     int (*match)(void *ptr, void *key);
     unsigned long len;
 } list;
@@ -70,23 +76,50 @@ typedef struct list {
 #define listGetMatchMethod(l) ((l)->match)
 
 /* Prototypes */
+
+// 创建空列表 
 list *listCreate(void);
+
+// 释放列表空间
 void listRelease(list *list);
+
+//添加表头节点
 list *listAddNodeHead(list *list, void *value);
+
+// 添加表尾节点
 list *listAddNodeTail(list *list, void *value);
+
+// 插入链表节点，after  0 表示插入节点之前，非0 插入节点之后
 list *listInsertNode(list *list, listNode *old_node, void *value, int after);
+
+// 删除链表节点
 void listDelNode(list *list, listNode *node);
+
 listIter *listGetIterator(list *list, int direction);
+
+// 返回迭代器当前节点
 listNode *listNext(listIter *iter);
 void listReleaseIterator(listIter *iter);
+
+// 赋值链表，通过迭代器
 list *listDup(list *orig);
+
+// 查找链表节点
 listNode *listSearchKey(list *list, void *key);
+
+// 根据索引位置，返回列表节点
 listNode *listIndex(list *list, long index);
+
+// 设置迭代器的值
 void listRewind(list *list, listIter *li);
 void listRewindTail(list *list, listIter *li);
+
+
+// 尾节点放在头节点之前
 void listRotate(list *list);
 
 /* Directions for iterators */
+// 迭代器的查找方向
 #define AL_START_HEAD 0
 #define AL_START_TAIL 1
 
