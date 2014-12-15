@@ -204,6 +204,8 @@ int dictResize(dict *d)
 int dictExpand(dict *d, unsigned long size)
 {
     dictht n; /* the new hash table */
+
+    // 获取hash table 大小, 范围在DICT_HT_INITIAL_SIZE 和 LONG_MAX 之间
     unsigned long realsize = _dictNextPower(size);
 
     /* the size is invalid if it is smaller than the number of
@@ -300,6 +302,8 @@ int dictRehashMilliseconds(dict *d, int ms) {
  * This function is called by common lookup or update operations in the
  * dictionary so that the hash table automatically migrates from H1 to H2
  * while it is actively used. */
+
+// hash table没有迭代器的情况下，重新hash
 static void _dictRehashStep(dict *d) {
     if (d->iterators == 0) dictRehash(d,1);
 }
@@ -697,6 +701,8 @@ unsigned int dictGetRandomKeys(dict *d, dictEntry **des, unsigned int count) {
 
 /* Function to reverse bits. Algorithm from:
  * http://graphics.stanford.edu/~seander/bithacks.html#ReverseParallel */
+
+// 反转位
 static unsigned long rev(unsigned long v) {
     unsigned long s = 8 * sizeof(v); // bit size; must be power of 2
     unsigned long mask = ~0;
@@ -865,6 +871,10 @@ unsigned long dictScan(dict *d,
 /* ------------------------- private functions ------------------------------ */
 
 /* Expand the hash table if needed */
+// 扩大hash table
+// 如果hash table 不存在，进行初始化
+// 如果hash table 数据大于size， 进行双倍扩容
+// 一般情况下，hash table 容量大小比例小于 1:1 
 static int _dictExpandIfNeeded(dict *d)
 {
     /* Incremental rehashing already in progress. Return. */
@@ -887,6 +897,8 @@ static int _dictExpandIfNeeded(dict *d)
 }
 
 /* Our hash table capability is a power of two */
+
+// hash table 的大小，是2的倍数
 static unsigned long _dictNextPower(unsigned long size)
 {
     unsigned long i = DICT_HT_INITIAL_SIZE;
@@ -895,6 +907,7 @@ static unsigned long _dictNextPower(unsigned long size)
     while(1) {
         if (i >= size)
             return i;
+        // 这里用<< 更好些?
         i *= 2;
     }
 }
@@ -920,6 +933,7 @@ static int _dictKeyIndex(dict *d, const void *key)
         /* Search if this slot does not already contain the given key */
         he = d->ht[table].table[idx];
         while(he) {
+            // 如果key已经存在，返回-1
             if (dictCompareKeys(d, key, he->key))
                 return -1;
             he = he->next;

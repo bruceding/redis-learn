@@ -66,6 +66,7 @@ typedef struct dictType {
 
 /* This is our hash table structure. Every dictionary has two of this as we
  * implement incremental rehashing, for the old to the new table. */
+// hash table
 typedef struct dictht {
     dictEntry **table;
     unsigned long size;
@@ -85,9 +86,13 @@ typedef struct dict {
  * dictAdd, dictFind, and other functions against the dictionary even while
  * iterating. Otherwise it is a non safe iterator, and only dictNext()
  * should be called while iterating. */
+
+// 字典迭代器
 typedef struct dictIterator {
     dict *d;
     long index;
+
+    // safe 标识迭代器行为
     int table, safe;
     dictEntry *entry, *nextEntry;
     /* unsafe iterator fingerprint for misuse detection. */
@@ -97,6 +102,8 @@ typedef struct dictIterator {
 typedef void (dictScanFunction)(void *privdata, const dictEntry *de);
 
 /* This is the initial size of every hash table */
+
+// hash table 初始大小
 #define DICT_HT_INITIAL_SIZE     4
 
 /* ------------------------------- Macros ------------------------------------*/
@@ -147,32 +154,69 @@ typedef void (dictScanFunction)(void *privdata, const dictEntry *de);
 #define dictIsRehashing(d) ((d)->rehashidx != -1)
 
 /* API */
+
+// 新建字典，数据初始化
 dict *dictCreate(dictType *type, void *privDataPtr);
+
+// 创建真正的hash table, 分配内存空间
 int dictExpand(dict *d, unsigned long size);
+
+// hash table 添加key-value
 int dictAdd(dict *d, void *key, void *val);
+
+// 返回新槽数据，设置key
 dictEntry *dictAddRaw(dict *d, void *key);
+
+// hash table 替换key-value，之前没有key数据，则新添加
 int dictReplace(dict *d, void *key, void *val);
+
+// 若存在key，直接返回槽，否则同dictAddRaw
 dictEntry *dictReplaceRaw(dict *d, void *key);
+
+// 删除字段元素
 int dictDelete(dict *d, const void *key);
+// 删除字段元素 不释放bucket的key 和val
 int dictDeleteNoFree(dict *d, const void *key);
+// 删除字典
 void dictRelease(dict *d);
+
+//查找key返回bucket 
 dictEntry * dictFind(dict *d, const void *key);
+
+// 查找key对应的val
 void *dictFetchValue(dict *d, const void *key);
+// 重设字典大小
 int dictResize(dict *d);
+
+// 获取字典迭代器
 dictIterator *dictGetIterator(dict *d);
+// 获取字典迭代器, 设置safe 为1
 dictIterator *dictGetSafeIterator(dict *d);
 dictEntry *dictNext(dictIterator *iter);
+
+// 释放迭代器
 void dictReleaseIterator(dictIterator *iter);
+
+// 随机返回字典槽
 dictEntry *dictGetRandomKey(dict *d);
 unsigned int dictGetRandomKeys(dict *d, dictEntry **des, unsigned int count);
+
 void dictPrintStats(dict *d);
 unsigned int dictGenHashFunction(const void *key, int len);
 unsigned int dictGenCaseHashFunction(const unsigned char *buf, int len);
+
+// 清空hash table
 void dictEmpty(dict *d, void(callback)(void*));
 void dictEnableResize(void);
 void dictDisableResize(void);
+
+// hash table 重新hash
 int dictRehash(dict *d, int n);
+
+// 在规定时间内ms， rehash 整个字典
 int dictRehashMilliseconds(dict *d, int ms);
+
+// 设置hase seed
 void dictSetHashFunctionSeed(unsigned int initval);
 unsigned int dictGetHashFunctionSeed(void);
 unsigned long dictScan(dict *d, unsigned long v, dictScanFunction *fn, void *privdata);
